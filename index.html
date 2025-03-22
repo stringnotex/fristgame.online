@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Play Monster Survivors online - a thrilling action roguelike where you battle endless waves of monsters in a fight for survival. Test your skills now!">
+    <meta name="keywords" content="Monster Survivors, roguelike game, survival game, action game, online game">
+    <title>Monster Survivors | Endless Roguelike Action | fristgame.online</title>
+    <link rel="canonical" href="https://fristgame.online">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cyber: {
+                            pink: '#FF206E',
+                            yellow: '#FBFF12',
+                            teal: '#41EAD4',
+                            purple: '#B829DC',
+                            blue: '#0B0BFC',
+                            dark: '#0D0221',
+                            darker: '#050118',
+                            neon: '#6EE2F5'
+                        }
+                    },
+                    fontFamily: {
+                        cyber: ['"Orbitron"', 'sans-serif']
+                    },
+                    animation: {
+                        'glitch': 'glitch 1s infinite',
+                        'glow': 'glow 2s ease infinite alternate',
+                        'flicker': 'flicker 1.5s infinite alternate'
+                    },
+                    keyframes: {
+                        glitch: {
+                            '0%, 100%': { transform: 'translate(0)' },
+                            '34%': { transform: 'translate(5px, 5px)' },
+                            '67%': { transform: 'translate(-5px, -5px)' }
+                        },
+                        glow: {
+                            'from': { 'text-shadow': '0 0 10px #fff, 0 0 20px #FF206E, 0 0 30px #41EAD4' },
+                            'to': { 'text-shadow': '0 0 20px #fff, 0 0 30px #0B0BFC, 0 0 40px #FBFF12' }
+                        },
+                        flicker: {
+                            '0%, 18%, 22%, 25%, 53%, 57%, 100%': { 'text-shadow': '0 0 4px #fff, 0 0 11px #fff, 0 0 19px #fff, 0 0 40px #41EAD4, 0 0 80px #41EAD4, 0 0 90px #41EAD4, 0 0 100px #41EAD4, 0 0 150px #41EAD4' },
+                            '20%, 24%, 55%': { 'text-shadow': 'none' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap');
+        
+        /* Cyberpunk Grid Background */
+        .cyber-grid {
+            background-image: 
+                linear-gradient(rgba(13, 2, 33, 0.9), rgba(13, 2, 33, 0.9)),
+                linear-gradient(90deg, rgba(65, 234, 212, 0.15) 1px, transparent 1px),
+                linear-gradient(rgba(65, 234, 212, 0.15) 1px, transparent 1px);
+            background-size: 100% 100%, 40px 40px, 40px 40px;
+        }
+        
+        /* Scan Line Effect */
+        .scan-lines::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                to bottom,
+                transparent 0%,
+                rgba(65, 234, 212, 0.05) 0.5%,
+                transparent 1%
+            );
+            pointer-events: none;
+            z-index: 10;
+        }
+        
+        /* Glowing Border */
+        .glow-border {
+            box-shadow: 0 0 5px #41EAD4, 0 0 10px #41EAD4, inset 0 0 5px #41EAD4;
+        }
+        
+        /* Neon Text Effect */
+        .neon-text {
+            text-shadow: 0 0 10px #41EAD4, 0 0 20px #41EAD4, 0 0 30px #41EAD4;
+        }
+        
+        /* Game Placeholder Transitions */
+        #game-placeholder {
+            transition: opacity 0.5s ease;
+        }
+        
+        /* Loading Animation */
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 5px #FF206E, 0 0 10px #FF206E; }
+            50% { box-shadow: 0 0 15px #FF206E, 0 0 20px #FF206E; }
+        }
+        
+        #loading-bar {
+            animation: pulse-glow 1.5s infinite;
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #0D0221;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #41EAD4;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #FF206E;
+        }
+        
+        /* Mobile Game Container Height Adjustment */
+        @media (max-width: 640px) {
+            .game-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+<body class="bg-cyber-dark text-white font-cyber overflow-x-hidden cyber-grid relative scan-lines">
+    <!-- Animated Background Elements -->
+    <div class="fixed w-24 h-24 bg-cyber-pink opacity-10 rounded-full -top-12 -left-12 blur-xl"></div>
+    <div class="fixed w-32 h-32 bg-cyber-teal opacity-10 rounded-full -bottom-16 -right-16 blur-xl"></div>
+    <div class="fixed w-20 h-20 bg-cyber-yellow opacity-10 rounded-full top-1/4 -right-10 blur-xl"></div>
+    
+    <!-- Navigation -->
+    <header class="relative z-20 border-b border-cyber-teal/30 backdrop-blur-sm">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="flex items-center space-x-4 mb-4 md:mb-0">
+                    <div class="w-10 h-10 bg-cyber-pink rounded-lg glow-border flex items-center justify-center">
+                        <span class="text-2xl font-bold">MS</span>
+                    </div>
+                    <a href="/" class="text-2xl font-bold tracking-wider text-cyber-teal hover:text-cyber-pink transition-colors duration-300">
+                        FRISTGAME<span class="text-cyber-yellow">.ONLINE</span>
+                    </a>
+                </div>
+                
+                <nav>
+                    <ul class="flex space-x-6">
+                        <li><a href="#game" class="hover:text-cyber-pink transition-colors duration-300 relative group">
+                            PLAY
+                            <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-cyber-pink group-hover:w-full transition-all duration-300"></span>
+                        </a></li>
+                        <li><a href="#about" class="hover:text-cyber-pink transition-colors duration-300 relative group">
+                            ABOUT
+                            <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-cyber-pink group-hover:w-full transition-all duration-300"></span>
+                        </a></li>
+                        <li><a href="#features" class="hover:text-cyber-pink transition-colors duration-300 relative group">
+                            FEATURES
+                            <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-cyber-pink group-hover:w-full transition-all duration-300"></span>
+                        </a></li>
+                        <li><a href="#controls" class="hover:text-cyber-pink transition-colors duration-300 relative group">
+                            CONTROLS
+                            <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-cyber-pink group-hover:w-full transition-all duration-300"></span>
+                        </a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-10 relative z-10">
+        <!-- Hero Section -->
+        <section class="mb-20 text-center relative overflow-hidden">
+            <div class="absolute inset-0 bg-cyber-darker/60 -z-10"></div>
+            <h1 class="text-4xl md:text-6xl font-bold mb-6 tracking-wider animate-glow text-cyber-teal">
+                MONSTER <span class="text-cyber-pink">SURVIVORS</span>
+            </h1>
+            <p class="text-xl md:text-2xl mb-10 text-cyber-yellow max-w-3xl mx-auto">
+                Battle endless waves of mutated creatures in this neon-soaked roguelike survival adventure
+            </p>
+            <a href="#game" class="inline-block px-8 py-3 bg-cyber-pink text-white font-bold rounded-lg transition-all duration-300 hover:bg-cyber-teal hover:text-cyber-dark hover:scale-105 glow-border" onclick="startGame()">
+                PLAY NOW
+            </a>
+        </section>
+
+        <!-- Game Section -->
+        <section id="game" class="mb-20 scroll-mt-20">
+            <div class="bg-cyber-darker/60 rounded-xl overflow-hidden border border-cyber-teal/30 glow-border relative">
+                <h2 class="text-2xl md:text-3xl font-bold p-4 bg-cyber-teal/20 text-cyber-teal animate-flicker">
+                    ENTER THE MONSTER REALM
+                </h2>
+                <div id="game-container" class="game-container w-full h-[600px] md:h-[700px] relative">
+                    <!-- Game loading placeholder -->
+                    <div id="game-placeholder" class="absolute inset-0 flex flex-col items-center justify-center bg-cyber-dark z-20">
+                        <div class="text-3xl text-cyber-pink mb-6 animate-pulse">GAME LOADING</div>
+                        <div class="w-64 h-3 bg-cyber-darker rounded-full overflow-hidden">
+                            <div id="loading-bar" class="h-full bg-cyber-pink w-0 transition-all duration-300"></div>
+                        </div>
+                        <button id="start-game-button" class="mt-8 px-6 py-3 bg-cyber-teal text-cyber-dark font-bold rounded hidden hover:bg-cyber-pink transition-all duration-300">
+                            START GAME
+                        </button>
+                    </div>
+                    
+                    <!-- Game iframe -->
+                    <iframe 
+                        id="game-frame"
+                        class="w-full h-full border-0 z-10" 
+                        allowfullscreen 
+                        allow="fullscreen; accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+                    </iframe>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="mb-20 scroll-mt-20">
+            <div class="bg-cyber-darker/60 rounded-xl p-6 md:p-8 border border-cyber-teal/30">
+                <h2 class="text-2xl md:text-3xl font-bold mb-8 text-cyber-pink">
+                    <span class="inline-block relative">
+                        <span class="absolute -left-4 top-1/2 w-2 h-8 -translate-y-1/2 bg-cyber-teal"></span>
+                        ABOUT THE GAME
+                    </span>
+                </h2>
+                
+                <div class="space-y-4 text-lg">
+                    <p>
+                        <span class="text-cyber-yellow">Monster Survivors</span> is a thrilling roguelike survival game where you face wave after wave of bizarre creatures in a dystopian world. What begins as a simple fight for survival quickly evolves into an intense battle of strategy and skill as you unlock powerful weapons and abilities.
+                    </p>
+                    <p>
+                        Each run is unique, with procedurally generated enemy patterns and random power-up combinations that ensure no two games are ever the same. As time passes, the difficulty ramps up, challenging even the most skilled players to push their limits and develop new strategies.
+                    </p>
+                    <p>
+                        Inspired by classic roguelike games but infused with modern mechanics, <span class="text-cyber-teal">Monster Survivors</span> offers a perfect balance of accessibility and depth. The game features simple controls that anyone can pick up, but mastering the intricate systems of weapon combos and enemy patterns will take dedication and skill.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section id="features" class="mb-20 scroll-mt-20">
+            <div class="bg-cyber-darker/60 rounded-xl p-6 md:p-8 border border-cyber-teal/30">
+                <h2 class="text-2xl md:text-3xl font-bold mb-8 text-cyber-pink">
+                    <span class="inline-block relative">
+                        <span class="absolute -left-4 top-1/2 w-2 h-8 -translate-y-1/2 bg-cyber-teal"></span>
+                        GAME FEATURES
+                    </span>
+                </h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="group bg-cyber-dark/80 p-5 rounded-lg border border-cyber-teal/20 hover:border-cyber-pink/50 transition-all duration-300 hover:translate-y-[-5px]">
+                        <h3 class="text-xl font-semibold mb-3 text-cyber-yellow group-hover:text-cyber-pink transition-colors duration-300">Endless Gameplay</h3>
+                        <p>Face increasingly difficult waves of monsters in an endless battle for survival. How long can you last before being overwhelmed?</p>
+                    </div>
+                    
+                    <div class="group bg-cyber-dark/80 p-5 rounded-lg border border-cyber-teal/20 hover:border-cyber-pink/50 transition-all duration-300 hover:translate-y-[-5px]">
+                        <h3 class="text-xl font-semibold mb-3 text-cyber-yellow group-hover:text-cyber-pink transition-colors duration-300">Progressive Character Building</h3>
+                        <p>Level up during each run, selecting from various weapons, abilities, and upgrades to create powerful character builds.</p>
+                    </div>
+                    
+                    <div class="group bg-cyber-dark/80 p-5 rounded-lg border border-cyber-teal/20 hover:border-cyber-pink/50 transition-all duration-300 hover:translate-y-[-5px]">
+                        <h3 class="text-xl font-semibold mb-3 text-cyber-yellow group-hover:text-cyber-pink transition-colors duration-300">Diverse Arsenal</h3>
+                        <p>Unlock and upgrade a wide range of weapons, each with unique attack patterns, damage types, and special effects.</p>
+                    </div>
+                    
+                    <div class="group bg-cyber-dark/80 p-5 rounded-lg border border-cyber-teal/20 hover:border-cyber-pink/50 transition-all duration-300 hover:translate-y-[-5px]">
+                        <h3 class="text-xl font-semibold mb-3 text-cyber-yellow group-hover:text-cyber-pink transition-colors duration-300">Exotic Monster Variety</h3>
+                        <p>Battle against dozens of unique enemy types, from small swarmers to massive boss creatures, each with their own attack patterns.</p>
+                    </div>
+                    
+                    <div class="group bg-cyber-dark/80 p-5 rounded-lg border border-cyber-teal/20 hover:border-cyber-pink/50 transition-all duration-300 hover:translate-y-[-5px]">
+                        <h3 class="text-xl font-semibold mb-3 text-cyber-yellow group-hover:text-cyber-pink transition-colors duration-300">Power-up System</h3>
+                        <p>Collect power-ups and items throughout your run to enhance your character's abilities and unlock devastating combos.</p>
+                    </div>
+                    
+                    <div class="group bg-cyber-dark/80 p-5 rounded-lg border border-cyber-teal/20 hover:border-cyber-pink/50 transition-all duration-300 hover:translate-y-[-5px]">
+                        <h3 class="text-xl font-semibold mb-3 text-cyber-yellow group-hover:text-cyber-pink transition-colors duration-300">Roguelike Progression</h3>
+                        <p>Permanent upgrades between runs allow you to gradually become stronger and reach further into the game with each attempt.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Controls Section -->
+        <section id="controls" class="mb-20 scroll-mt-20">
+            <div class="bg-cyber-darker/60 rounded-xl p-6 md:p-8 border border-cyber-teal/30">
+                <h2 class="text-2xl md:text-3xl font-bold mb-8 text-cyber-pink">
+                    <span class="inline-block relative">
+                        <span class="absolute -left-4 top-1/2 w-2 h-8 -translate-y-1/2 bg-cyber-teal"></span>
+                        GAME CONTROLS & TIPS
+                    </span>
+                </h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                    <div class="space-y-6">
+                        <h3 class="text-xl font-semibold text-cyber-yellow border-b border-cyber-yellow pb-2">Basic Controls</h3>
+                        
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 bg-cyber-dark rounded flex items-center justify-center border border-cyber-teal mr-4">
+                                <span class="text-cyber-teal">W</span>
+                            </div>
+                            <p>Move up</p>
+                        </div>
+                        
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 bg-cyber-dark rounded flex items-center justify-center border border-cyber-teal mr-4">
+                                <span class="text-cyber-teal">A</span>
+                            </div>
+                            <p>Move left</p>
+                        </div>
+                        
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 bg-cyber-dark rounded flex items-center justify-center border border-cyber-teal mr-4">
+                                <span class="text-cyber-teal">S</span>
+                            </div>
+                            <p>Move down</p>
+                        </div>
+                        
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 bg-cyber-dark rounded flex items-center justify-center border border-cyber-teal mr-4">
+                                <span class="text-cyber-teal">D</span>
+                            </div>
+                            <p>Move right</p>
+                        </div>
+                        
+                        <div class="flex items-center">
+                            <div class="w-24 h-12 bg-cyber-dark rounded flex items-center justify-center border border-cyber-teal mr-4">
+                                <span class="text-cyber-teal">SPACE</span>
+                            </div>
+                            <p>Use special ability</p>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-6">
+                        <h3 class="text-xl font-semibold text-cyber-yellow border-b border-cyber-yellow pb-2">Pro Tips</h3>
+                        
+                        <div class="space-y-4">
+                            <div class="bg-cyber-dark/80 p-4 rounded border-l-4 border-cyber-pink">
+                                <p class="font-semibold text-cyber-pink">Never Stop Moving</p>
+                                <p>Standing still is a death sentence. Keep moving to avoid enemy attacks and create space.</p>
+                            </div>
+                            
+                            <div class="bg-cyber-dark/80 p-4 rounded border-l-4 border-cyber-teal">
+                                <p class="font-semibold text-cyber-teal">Prioritize Synergistic Upgrades</p>
+                                <p>Look for upgrades that complement each other rather than picking random abilities.</p>
+                            </div>
+                            
+                            <div class="bg-cyber-dark/80 p-4 rounded border-l-4 border-cyber-yellow">
+                                <p class="font-semibold text-cyber-yellow">Collect XP Gems</p>
+                                <p>Don't forget to collect experience gems from defeated enemies to level up faster.</p>
+                            </div>
+                            
+                            <div class="bg-cyber-dark/80 p-4 rounded border-l-4 border-cyber-purple">
+                                <p class="font-semibold text-cyber-purple">Balance Your Build</p>
+                                <p>A mix of offensive and defensive upgrades will serve you better than focusing solely on damage.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-cyber-darker border-t border-cyber-teal/30 py-10 px-4 relative z-20">
+        <div class="container mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+                <div>
+                    <h3 class="text-xl font-bold mb-4 text-cyber-teal">MONSTER SURVIVORS</h3>
+                    <p class="mb-4">The ultimate roguelike survival experience. How long can you last in this cybernetic nightmare?</p>
+                    <p class="text-cyber-pink">&copy; 2025 fristgame.online. All rights reserved.</p>
+                </div>
+                
+                <div>
+                    <h3 class="text-xl font-bold mb-4 text-cyber-teal">QUICK LINKS</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#game" class="hover:text-cyber-pink transition-colors duration-300">Play Game</a></li>
+                        <li><a href="#about" class="hover:text-cyber-pink transition-colors duration-300">About</a></li>
+                        <li><a href="#features" class="hover:text-cyber-pink transition-colors duration-300">Features</a></li>
+                        <li><a href="#controls" class="hover:text-cyber-pink transition-colors duration-300">Controls & Tips</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-xl font-bold mb-4 text-cyber-teal">JOIN THE COMMUNITY</h3>
+                    <p class="mb-4">Follow us on social media for updates, competitions, and more Monster Survivors content!</p>
+                    <div class="flex space-x-4 mt-4">
+                        <a href="#" class="w-10 h-10 rounded-full border border-cyber-pink flex items-center justify-center hover:bg-cyber-pink transition-colors duration-300">
+                            <span>T</span>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full border border-cyber-teal flex items-center justify-center hover:bg-cyber-teal transition-colors duration-300">
+                            <span>D</span>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full border border-cyber-yellow flex items-center justify-center hover:bg-cyber-yellow transition-colors duration-300">
+                            <span>R</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Cyberpunk Cursor Effect (Optional) -->
+    <div id="cursor-follower" class="hidden md:block fixed w-4 h-4 rounded-full border-2 border-cyber-teal pointer-events-none z-50 mix-blend-difference"></div>
+
+    <script>
+        // Function to start the game loading process
+        function startGame() {
+            // Scroll to game section
+            document.querySelector('#game').scrollIntoView({
+                behavior: 'smooth'
+            });
+            
+            setTimeout(() => {
+                // Get DOM elements
+                const gameFrame = document.getElementById('game-frame');
+                const placeholder = document.getElementById('game-placeholder');
+                const loadingBar = document.getElementById('loading-bar');
+                const startButton = document.getElementById('start-game-button');
+                
+                // Simulate loading progress
+                let progress = 0;
+                const loadingInterval = setInterval(() => {
+                    progress += Math.random() * 10;
+                    if (progress > 100) progress = 100;
+                    
+                    loadingBar.style.width = progress + '%';
+                    
+                    if (progress >= 100) {
+                        clearInterval(loadingInterval);
+                        startButton.classList.remove('hidden');
+                    }
+                }, 300);
+                
+                // Set up the start button to actually load the game
+                startButton.addEventListener('click', () => {
+                    // Set the iframe source only when user clicks start
+                    gameFrame.src = "https://cloud.onlinegames.io/games/2025/unity/monster-survivors/index-og.html";
+                    
+                    // Listen for the iframe load event
+                    gameFrame.addEventListener('load', () => {
+                        // Remove the placeholder after the iframe has loaded
+                        placeholder.style.opacity = '0';
+                        setTimeout(() => {
+                            placeholder.style.display = 'none';
+                        }, 500);
+                        
+                        // Focus the iframe
+                        gameFrame.focus();
+                    });
+                });
+            }, 800); // Allow time for the scroll to complete
+        }
+        
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+        
+        // Custom Cursor Effect
+        const cursorFollower = document.getElementById('cursor-follower');
+        
+        document.addEventListener('mousemove', (e) => {
+            if (cursorFollower) {
+                cursorFollower.style.left = e.clientX + 'px';
+                cursorFollower.style.top = e.clientY + 'px';
+            }
+        });
+        
+        // Interactive hover effects for feature cards
+        document.querySelectorAll('.group').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.boxShadow = '0 0 15px rgba(65, 234, 212, 0.5)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.boxShadow = 'none';
+            });
+        });
+        
+        // Random glitch effect on text elements
+        function applyRandomGlitch() {
+            const headings = document.querySelectorAll('h1, h2, h3');
+            const randomIndex = Math.floor(Math.random() * headings.length);
+            
+            headings[randomIndex].classList.add('animate-glitch');
+            
+            setTimeout(() => {
+                headings[randomIndex].classList.remove('animate-glitch');
+            }, 1000);
+        }
+        
+        // Apply glitch effect at random intervals
+        setInterval(applyRandomGlitch, 5000);
+    </script>
+</body>
+</html>
